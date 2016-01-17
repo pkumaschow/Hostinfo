@@ -211,6 +211,14 @@ def HostList(request):
 
 ###############################################################################
 @require_http_methods(["GET"])
+def KeyList(request):
+    keys = get_list_or_404(AllowedKey)
+    ans = {'result': '%d keys' % len(keys), 'keys': [AllowedKeySerialize(k, request) for k in keys]}
+    return JsonResponse(ans)
+
+
+###############################################################################
+@require_http_methods(["GET"])
 def KeyDetail(request, akeypk=None, akey=None):
     if akeypk:
         keyid = get_object_or_404(AllowedKey, id=akeypk)
@@ -251,6 +259,7 @@ def HostSerialize(obj, request):
         'id': obj.id,
         'hostname': obj.hostname,
         'origin': obj.origin,
+        'docpage': obj.docpage,
         'createdate': obj.createdate,
         'modifieddate': obj.modifieddate,
         'keyvalues': keyvals,
@@ -271,7 +280,9 @@ def AllowedKeySerialize(obj, request):
         'createdate': obj.createdate,
         'modifieddate': obj.modifieddate,
         'restricted': obj.restrictedFlag,
-        'audit': obj.auditFlag
+        'audit': obj.auditFlag,
+        'readonly': obj.readonlyFlag,
+        'docpage': obj.docpage
     }
     if obj.restrictedFlag:
         rvals = RestrictedValue.objects.filter(keyid=obj.id)
